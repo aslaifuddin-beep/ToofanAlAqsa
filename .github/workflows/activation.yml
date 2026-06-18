@@ -4,43 +4,22 @@ on:
   workflow_dispatch:
 
 jobs:
-  activation:
-    name: Generate Manual Activation File (.alf)
+  get-license:
+    name: Instructions to get .ulf license file
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Generate .alf activation request
+      - name: Show instructions
         run: |
-          docker run --rm \
-            -v "$(pwd):/workspace" \
-            -w /workspace \
-            unityci/editor:2022.3.20f1-android-2 \
-            bash -c '
-              xvfb-run --auto-servernum \
-                /opt/unity/Editor/Unity \
-                -batchmode \
-                -createManualActivationFile \
-                -nographics \
-                -logFile /workspace/activation.log 2>&1
-              echo "--- Searching for .alf file ---"
-              find /opt/unity -name "*.alf" -exec cp {} /workspace/UnityLicenseRequest.alf \; 2>/dev/null || true
-              find /root -name "*.alf" -exec cp {} /workspace/UnityLicenseRequest.alf \; 2>/dev/null || true
-            '
-
-      - name: Verify .alf file
-        run: |
-          if [ -f UnityLicenseRequest.alf ]; then
-            echo "ALF file generated successfully:"
-            ls -la UnityLicenseRequest.alf
-          else
-            echo "ALF file not found. Activation log:"
-            cat activation.log
-            exit 1
-          fi
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: unity-license-activation
-          path: UnityLicenseRequest.alf
+          echo "========================================="
+          echo "  HOW TO GET YOUR UNITY LICENSE FILE"
+          echo "========================================="
+          echo ""
+          echo "1. Open Unity Hub on your PC"
+          echo "2. Go to Preferences > Licenses"
+          echo "3. Ensure Personal License is activated"
+          echo "4. Open this file with Notepad:"
+          echo "   C:\ProgramData\Unity\Unity_lic.ulf"
+          echo "5. Copy ALL the text inside"
+          echo "6. Add as GitHub Secret 'UNITY_LICENSE'"
+          echo ""
+          echo "Or run Build Android APK workflow directly"
