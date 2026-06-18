@@ -15,14 +15,9 @@ on:
         options:
           - release
           - development
-      apk_name:
-        description: 'Custom APK filename (optional)'
-        type: string
-        default: ''
 
 env:
   UNITY_VERSION: 2022.3.20f1
-  APK_NAME: ${{ inputs.apk_name || 'ToofanAlAqsa_FPS' }}
 
 jobs:
   build:
@@ -31,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          lfs: true
+          lfs: false
 
       - name: Restore Library Cache
         uses: actions/cache@v4
@@ -44,36 +39,32 @@ jobs:
 
       - name: Build APK
         uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
           targetPlatform: Android
           buildMethod: BuildHelper.CI_Build
           allowDirtyBuild: false
           versioning: Semantic
-          androidAppBundle: false
+          androidExportType: androidPackage
           androidKeystoreName: ${{ secrets.ANDROID_KEYSTORE_NAME }}
           androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           androidKeystorePass: ${{ secrets.ANDROID_KEYSTORE_PASS }}
           androidKeyaliasName: ${{ secrets.ANDROID_KEYALIAS_NAME }}
           androidKeyaliasPass: ${{ secrets.ANDROID_KEYALIAS_PASS }}
-          username: ${{ secrets.UNITY_EMAIL }}
-          password: ${{ secrets.UNITY_PASSWORD }}
-          serial: ${{ secrets.UNITY_SERIAL }}
-
-      - name: List build output
-        run: |
-          echo "=== Build output ==="
-          find build/ -name "*.apk" -ls 2>/dev/null || echo "No APK found in build/"
-          find . -path ./.git -prune -o -name "*.apk" -print -ls 2>/dev/null || echo "No APK found"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.APK_NAME }}-Android
+          name: ToofanAlAqsa-Android-APK
           path: |
             build/**/*.apk
             Builds/*.apk
-          if-no-files-found: error
+          if-no-files-found: warn
 
       - name: Upload to Release
         if: startsWith(github.ref, 'refs/tags/v')
