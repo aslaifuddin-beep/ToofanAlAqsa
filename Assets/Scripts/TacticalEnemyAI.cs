@@ -76,6 +76,7 @@ public class TacticalEnemyAI : MonoBehaviour
     void Update()
     {
         if (currentState == AIState.Dead) return;
+        if (agent == null) return;
 
         stateTimer -= Time.deltaTime;
 
@@ -83,6 +84,15 @@ public class TacticalEnemyAI : MonoBehaviour
         {
             player = Camera.main?.transform;
             return;
+        }
+
+        if (!agent.isOnNavMesh)
+        {
+            NavMeshHit navHit;
+            if (NavMesh.SamplePosition(transform.position, out navHit, 5f, NavMesh.AllAreas))
+                agent.Warp(navHit.position);
+            else
+                return;
         }
 
         float distToPlayer = Vector3.Distance(transform.position, player.position);
@@ -134,6 +144,7 @@ public class TacticalEnemyAI : MonoBehaviour
 
     void UpdatePatrol(float dist, bool canSee)
     {
+        if (agent == null) return;
         agent.speed = walkSpeed;
 
         if (canSee)
@@ -142,12 +153,12 @@ public class TacticalEnemyAI : MonoBehaviour
             return;
         }
 
-        if (dist < detectionRange * 0.5f && !canSee)
+        if (agent.isOnNavMesh && dist < detectionRange * 0.5f && !canSee)
         {
             agent.isStopped = false;
         }
 
-        if (!agent.pathPending && agent.remainingDistance < 0.5f)
+        if (agent.hasPath && !agent.pathPending && agent.remainingDistance < 0.5f)
         {
             stateTimer -= Time.deltaTime;
             if (stateTimer <= 0f)
@@ -159,6 +170,7 @@ public class TacticalEnemyAI : MonoBehaviour
 
     void UpdateAlert(float dist, bool canSee)
     {
+        if (agent == null || !agent.isOnNavMesh) return;
         agent.speed = runSpeed;
 
         if (canSee)
@@ -168,9 +180,10 @@ public class TacticalEnemyAI : MonoBehaviour
             return;
         }
 
-        agent.SetDestination(lastKnownPlayerPos);
+        if (agent.isOnNavMesh)
+            agent.SetDestination(lastKnownPlayerPos);
 
-        if (agent.remainingDistance < 1f)
+        if (agent.hasPath && agent.remainingDistance < 1f)
         {
             SetState(AIState.Patrol);
         }
@@ -178,6 +191,7 @@ public class TacticalEnemyAI : MonoBehaviour
 
     void UpdateCombat(float dist, bool canSee)
     {
+        if (agent == null) return;
         agent.speed = runSpeed;
 
         if (!canSee)
@@ -190,8 +204,11 @@ public class TacticalEnemyAI : MonoBehaviour
 
         if (dist > fireRange)
         {
-            agent.SetDestination(player.position);
-            agent.isStopped = false;
+            if (agent.isOnNavMesh)
+            {
+                agent.SetDestination(player.position);
+                agent.isStopped = false;
+            }
         }
         else
         {
@@ -220,6 +237,7 @@ public class TacticalEnemyAI : MonoBehaviour
 
     void UpdateFlanking(float dist, bool canSee)
     {
+        if (agent == null) return;
         agent.speed = runSpeed;
 
         if (!canSee)
@@ -231,15 +249,18 @@ public class TacticalEnemyAI : MonoBehaviour
         Vector3 flankDir = transform.right * (Random.value > 0.5f ? 1 : -1);
         Vector3 flankTarget = lastKnownPlayerPos + flankDir * 10f + Vector3.forward * 5f;
 
-        agent.SetDestination(flankTarget);
-        agent.isStopped = false;
+        if (agent.isOnNavMesh)
+        {
+            agent.SetDestination(flankTarget);
+            agent.isStopped = false;
+        }
 
         if (canSee && dist < fireRange)
         {
             ShootAtPlayer();
         }
 
-        if (Vector3.Distance(transform.position, flankTarget) < 2f)
+        if (agent.isOnNavMesh && Vector3.Distance(transform.position, flankTarget) < 2f)
         {
             SetState(AIState.Combat);
         }
@@ -253,6 +274,7 @@ public class TacticalEnemyAI : MonoBehaviour
 
     void UpdateCover(float dist, bool canSee)
     {
+        if (agent == null) return;
         agent.speed = walkSpeed;
 
         if (!hasCover)
@@ -260,12 +282,12 @@ public class TacticalEnemyAI : MonoBehaviour
             FindCoverPosition();
         }
 
-        if (hasCover)
+        if (hasCover && agent.isOnNavMesh)
         {
             agent.SetDestination(currentCoverPos);
             agent.isStopped = false;
 
-            if (agent.remainingDistance < 1f)
+            if (agent.hasPath && agent.remainingDistance < 1f)
             {
                 agent.isStopped = true;
                 FaceTarget();
@@ -292,20 +314,21 @@ public class TacticalEnemyAI : MonoBehaviour
 
     void UpdateSuppressed(float dist, bool canSee)
     {
+        if (agent == null) return;
         agent.speed = runSpeed;
 
         FindCoverPosition();
-        if (hasCover)
+        if (agent.isOnNavMesh)
         {
-            agent.SetDestination(currentCoverPos);
+            if (hasCover)
+                agent.SetDestination(currentCoverPos);
+            else
+            {
+                Vector3 retreatDir = (transform.position - lastKnownPlayerPos).normalized;
+                agent.SetDestination(transform.position + retreatDir * 15f);
+            }
+            agent.isStopped = false;
         }
-        else
-        {
-            Vector3 retreatDir = (transform.position - lastKnownPlayerPos).normalized;
-            agent.SetDestination(transform.position + retreatDir * 15f);
-        }
-
-        agent.isStopped = false;
 
         suppressionLevel -= Time.deltaTime * 10f;
         if (suppressionLevel <= 0f)
@@ -403,7 +426,8 @@ public class TacticalEnemyAI : MonoBehaviour
         NavMeshHit navHit;
         if (NavMesh.SamplePosition(patrolTarget, out navHit, patrolRadius, NavMesh.AllAreas))
         {
-            agent.SetDestination(navHit.position);
+            if (agent != null && agent.isOnNavMesh)
+                agent.SetDestination(navHit.position);
         }
 
         stateTimer = minTimeAtPatrolPoint + Random.Range(0f, 3f);

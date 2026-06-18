@@ -31,6 +31,7 @@ RenderSettings:
   m_IndirectSpecularColor: {r: 0.446578, g: 0.496412, b: 0.574817, a: 1}
 --- !u!157 &3
 LightmapSettings:
+  m_Lightmap: {fileID: 0}
   m_LightmapCompression: 1
   m_LightmapDirectional: 1
   m_LightmapIndirectIntensity: 1
@@ -66,8 +67,6 @@ GameObject:
   m_Component:
   - component: {fileID: 100001}
   - component: {fileID: 100002}
-  - component: {fileID: 100003}
-  - component: {fileID: 100004}
   m_GameObject: {fileID: 100000}
   m_Layer: 0
   m_Name: Main Camera
@@ -91,7 +90,15 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!20 &100002
+--- !u!81 &100003
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+--- !u!20 &100004
 Camera:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -119,7 +126,6 @@ Camera:
   m_farClipPlane: 1000
   m_nearClipPlane: 0.03
   m_fieldOfView: 70
-  m_Depth: -1
   m_ClearFlags: 1
   m_BackGroundColor: {r: 0.168, g: 0.168, b: 0.168, a: 0}
   m_NormalizedViewPortRect:
@@ -136,26 +142,6 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
---- !u!81 &100003
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 100000}
-  m_Enabled: 1
---- !u!114 &100004
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 100000}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11111111111111111111111111111111, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &200000
 GameObject:
   m_ObjectHideFlags: 0
@@ -246,7 +232,6 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   m_Component:
   - component: {fileID: 300001}
-  - component: {fileID: 300002}
   m_GameObject: {fileID: 300000}
   m_Layer: 0
   m_Name: GameManager
@@ -270,18 +255,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &300002
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 300000}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11111111111111111111111111111112, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &400000
 GameObject:
   m_ObjectHideFlags: 0
@@ -291,7 +264,6 @@ GameObject:
   m_Component:
   - component: {fileID: 400001}
   - component: {fileID: 400002}
-  - component: {fileID: 400003}
   m_GameObject: {fileID: 400000}
   m_Layer: 0
   m_Name: PlayerController
@@ -330,15 +302,65 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.9, z: 0}
---- !u!114 &400003
-MonoBehaviour:
+--- !u!1 &500000
+GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 400000}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11111111111111111111111111111113, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier:
+  m_Component:
+  - component: {fileID: 500001}
+  m_GameObject: {fileID: 500000}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &500001
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 500000}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &600000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Component:
+  - component: {fileID: 600001}
+  m_GameObject: {fileID: 600000}
+  m_Layer: 0
+  m_Name: MissionManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &600001
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 600000}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

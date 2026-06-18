@@ -91,6 +91,7 @@ public class BulletProjectile : MonoBehaviour
         if (r != null) r.material.color = Color.gray;
 
         Destroy(impact, 3f);
-        Object.Destroy(GetComponent<Collider>());
+        Collider col = GetComponent<Collider>();
+        if (col != null) Destroy(col);
     }
 }
