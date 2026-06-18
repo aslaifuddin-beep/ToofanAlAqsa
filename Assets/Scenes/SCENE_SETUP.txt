@@ -1,0 +1,4 @@
+1. Create a new scene in Unity: File > New Scene
+2. Save as: Assets/Scenes/MainScene.unity
+3. Create the required GameObjects as described in README.md
+4. File > Build Settings > Add Open Scenes

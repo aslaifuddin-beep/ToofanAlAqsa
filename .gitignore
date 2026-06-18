@@ -1,0 +1,29 @@
+# Unity generated
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Mm]emoryCaptures/
+
+# Visual Studio
+/[Ss]ln/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.user
+*.userprefs
+
+# JetBrains Rider
+*.idea/
+*.DotSettings
+
+# macOS
+.DS_Store
+
+# Android
+*.apk
+*.aab
+*.keystore

@@ -1,0 +1,74 @@
+====================================================================
+                      IMPORTANT - INSTRUCTIONS
+            HOW TO ADD 3D MODELS AND AUDIO ASSETS
+====================================================================
+
+This project uses Resources.Load() to load assets at runtime.
+
+=== SUPPORTED ASSET NAMES (place inside Assets/Resources/) ===
+
+1. 3D MODELS (Place in Assets/Resources/Models/ or any subfolder):
+   - Soldier_Enemy.fbx        - Enemy soldier character
+   - Tank_Enemy.fbx           - Merkava tank
+   - RPG_Weapon.fbx           - RPG launcher model
+   - AssaultRifle_Weapon.fbx  - Assault rifle model
+   - SniperRifle_Weapon.fbx   - Sniper rifle model
+   - Tunnel_Environment.fbx   - Underground tunnel section
+   - Building_Rubble.fbx      - Destroyed building
+   - Street_Environment.fbx   - Street section
+   - Player_Arms.fbx          - First-person arms with weapon
+   - Bullet_Shell.fbx         - Bullet casing (optional)
+
+2. AUDIO (Place in Assets/Resources/Audio/):
+   - AssaultRifle_Fire.wav    - Assault rifle shot
+   - SniperRifle_Fire.wav     - Sniper rifle shot
+   - RPG_Launch.wav           - RPG launch sound
+   - RPG_Impact.wav           - RPG explosion
+   - Footstep_Concrete.wav    - Walking on concrete
+   - Footstep_Dirt.wav        - Walking on dirt/rubble
+   - Reload_Click.wav         - Weapon reload
+   - Empty_Click.wav          - Empty magazine click
+   - Enemy_Fire.wav           - Enemy weapon fire
+   - Tank_Engine.wav          - Tank engine sound
+   - Tank_Cannon.wav          - Tank cannon fire
+   - Tunnel_Ambience.wav      - Underground ambience
+   - City_Ambience.wav        - Outdoor city ambience
+
+3. TEXTURES (Place in Assets/Resources/Textures/):
+   - Concrete_Wall.jpg        - Building texture
+   - Ground_Dirt.jpg          - Ground texture
+   - Skybox_City.jpg          - Skybox texture
+   - Weapon_Default.jpg       - Weapon skin
+
+=== TEMPORARY PLACEHOLDER SYSTEM ===
+
+Until you add real assets, the game uses primitive shapes:
+- Cubes for buildings and walls
+- Spheres for explosions and effects
+- Capsules for characters
+- Cylinders for tanks
+
+These placeholders are created at runtime in the scripts.
+See the comments in each script marked:
+  // TEMPORARY PLACEHOLDER: Replace with your...
+
+To replace, create prefabs and assign them in the Unity Inspector.
+
+=== STEP-BY-STEP TO ADD MODELS ===
+
+1. Download free/paid 3D models from:
+   - Unity Asset Store (https://assetstore.unity.com)
+   - Mixamo (https://www.mixamo.com) - for character animations
+   - Sketchfab, TurboSquid, CGTrader
+
+2. Import .fbx files into Unity by dragging into Assets/Models/
+
+3. Create prefabs and assign them in the Inspector of:
+   - WeaponManager (weaponPrefab for each slot)
+   - TacticalEnemyAI (the enemy model)
+   - TankAI (the tank model)
+
+4. For audio, import .wav/.mp3 files and assign to the
+   AudioSource components in the scene.
+
+====================================================================
