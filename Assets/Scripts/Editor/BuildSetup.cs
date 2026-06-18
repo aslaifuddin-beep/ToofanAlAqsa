@@ -22,40 +22,32 @@ public class BuildSetup : IPreprocessBuildWithReport
 
     static void EnsureURPConfig()
     {
-        if (GraphicsSettings.defaultRenderPipeline != null) return;
-
-        string[] urpGuids = AssetDatabase.FindAssets("t:RenderPipelineAsset");
-        if (urpGuids.Length > 0)
+        var pipelineType = System.Type.GetType("UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset, Unity.RenderPipelines.Universal.Runtime");
+        if (pipelineType == null)
         {
-            string path = AssetDatabase.GUIDToAssetPath(urpGuids[0]);
-            var pipeline = AssetDatabase.LoadAssetAtPath<RenderPipelineAsset>(path);
+            Debug.LogError("URP package not installed. Cannot configure rendering.");
+            return;
+        }
+
+        string urpPath = "Assets/Settings/URP_HighQuality.asset";
+        var pipeline = AssetDatabase.LoadAssetAtPath<RenderPipelineAsset>(urpPath);
+
+        if (pipeline == null)
+        {
+            Directory.CreateDirectory("Assets/Settings");
+            pipeline = ScriptableObject.CreateInstance(pipelineType) as RenderPipelineAsset;
             if (pipeline != null)
             {
-                GraphicsSettings.defaultRenderPipeline = pipeline;
-                QualitySettings.renderPipeline = pipeline;
-                Debug.Log($"URP assigned: {path}");
+                AssetDatabase.CreateAsset(pipeline, urpPath);
+                Debug.Log("Created fresh URP asset.");
             }
         }
-        else
+
+        if (pipeline != null)
         {
-            Debug.LogWarning("No URP asset found. Creating default...");
-            string urpPath = "Assets/Settings/URP_HighQuality.asset";
-            if (!File.Exists(urpPath))
-            {
-                var pipelineType = System.Type.GetType("UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset, Unity.RenderPipelines.Universal.Runtime");
-                if (pipelineType != null)
-                {
-                    var pipeline = ScriptableObject.CreateInstance(pipelineType) as RenderPipelineAsset;
-                    if (pipeline != null)
-                    {
-                        Directory.CreateDirectory("Assets/Settings");
-                        AssetDatabase.CreateAsset(pipeline, urpPath);
-                        GraphicsSettings.defaultRenderPipeline = pipeline;
-                        QualitySettings.renderPipeline = pipeline;
-                        Debug.Log("Created default URP asset.");
-                    }
-                }
-            }
+            GraphicsSettings.defaultRenderPipeline = pipeline;
+            QualitySettings.renderPipeline = pipeline;
+            AssetDatabase.SaveAssets();
         }
     }
 
