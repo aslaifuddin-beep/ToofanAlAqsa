@@ -1,0 +1,22 @@
+name: Acquire Unity License
+
+on:
+  workflow_dispatch:
+
+jobs:
+  activation:
+    name: Generate Unity License Activation File
+    runs-on: ubuntu-latest
+    steps:
+      - uses: game-ci/unity-license-activate@v3
+        id: activation
+        with:
+          unityVersion: 2022.3.20f1
+          username: ${{ secrets.UNITY_EMAIL }}
+          password: ${{ secrets.UNITY_PASSWORD }}
+          serial: ${{ secrets.UNITY_SERIAL }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unity-license-activation
+          path: ${{ steps.activation.outputs.licenseFilePath }}

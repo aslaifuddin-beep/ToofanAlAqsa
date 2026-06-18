@@ -73,7 +73,10 @@ public class BuildHelper : EditorWindow
             }
         }
 
-        string outputPath = Path.Combine(Application.dataPath, "..", "Builds", apkName);
+        string buildDir = System.Environment.GetEnvironmentVariable("BUILD_PATH");
+        if (string.IsNullOrEmpty(buildDir))
+            buildDir = Path.Combine(Application.dataPath, "..", "Builds");
+        string outputPath = Path.Combine(buildDir, apkName);
         Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
 
         BuildPlayerOptions buildOptions = new BuildPlayerOptions

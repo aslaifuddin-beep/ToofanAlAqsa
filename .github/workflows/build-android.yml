@@ -2,75 +2,47 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ "main", "master", "develop" ]
-    tags:
-      - 'v*'
+    branches: [ "main", "master" ]
+    tags: [ "v*" ]
   pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch:
     inputs:
-      development:
-        description: 'Development Build'
-        type: boolean
-        default: false
+      build_type:
+        description: 'Build type'
+        type: choice
+        default: 'release'
+        options:
+          - release
+          - development
       apk_name:
-        description: 'APK filename'
+        description: 'Custom APK filename (optional)'
         type: string
-        default: 'ToofanAlAqsa_FPS.apk'
+        default: ''
 
 env:
   UNITY_VERSION: 2022.3.20f1
-  PROJECT_NAME: 'ToofanAlAqsa'
+  APK_NAME: ${{ inputs.apk_name || 'ToofanAlAqsa_FPS' }}
 
 jobs:
-  # Step 1: Activate Unity license (required for building)
-  activation:
-    name: Generate Unity License Activation
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || contains(github.ref, 'refs/tags/')
-    steps:
-      - uses: game-ci/unity-license-activate@v3
-        id: activation
-        with:
-          unityVersion: ${{ env.UNITY_VERSION }}
-          username: ${{ secrets.UNITY_EMAIL }}
-          password: ${{ secrets.UNITY_PASSWORD }}
-          serial: ${{ secrets.UNITY_SERIAL }}
-      - uses: actions/upload-artifact@v4
-        with:
-          name: unity-license-activation
-          path: ${{ steps.activation.outputs.licenseFilePath }}
-
-  # Step 2: Build the Android APK
   build:
     name: Build Android APK
     runs-on: ubuntu-latest
-    needs: activation
-    if: always() && (needs.activation.result == 'success' || needs.activation.result == 'skipped')
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           lfs: true
 
-      - name: Cache Unity Library
+      - name: Restore Library Cache
         uses: actions/cache@v4
         with:
           path: Library
-          key: Library-${{ env.UNITY_VERSION }}-${{ hashFiles('Assets/**', 'Packages/**') }}
+          key: Library-${{ env.UNITY_VERSION }}-Android-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
+            Library-${{ env.UNITY_VERSION }}-Android-
             Library-${{ env.UNITY_VERSION }}-
 
-      - name: Load Unity License
-        if: needs.activation.result == 'success'
-        uses: game-ci/unity-license-activate@v3
-        with:
-          unityVersion: ${{ env.UNITY_VERSION }}
-          username: ${{ secrets.UNITY_EMAIL }}
-          password: ${{ secrets.UNITY_PASSWORD }}
-          serial: ${{ secrets.UNITY_SERIAL }}
-
-      - name: Build Android APK
+      - name: Build APK
         uses: game-ci/unity-builder@v4
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
@@ -84,53 +56,31 @@ jobs:
           androidKeystorePass: ${{ secrets.ANDROID_KEYSTORE_PASS }}
           androidKeyaliasName: ${{ secrets.ANDROID_KEYALIAS_NAME }}
           androidKeyaliasPass: ${{ secrets.ANDROID_KEYALIAS_PASS }}
+          username: ${{ secrets.UNITY_EMAIL }}
+          password: ${{ secrets.UNITY_PASSWORD }}
+          serial: ${{ secrets.UNITY_SERIAL }}
+
+      - name: List build output
+        run: |
+          echo "=== Build output ==="
+          find build/ -name "*.apk" -ls 2>/dev/null || echo "No APK found in build/"
+          find . -path ./.git -prune -o -name "*.apk" -print -ls 2>/dev/null || echo "No APK found"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ToofanAlAqsa-APK
-          path: build/Android/**/*.apk
+          name: ${{ env.APK_NAME }}-Android
+          path: |
+            build/**/*.apk
+            Builds/*.apk
           if-no-files-found: error
 
-      - name: Upload APK to Release
+      - name: Upload to Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: build/Android/**/*.apk
+          files: |
+            build/**/*.apk
+            Builds/*.apk
           generate_release_notes: true
           fail_on_unmatched_files: false
-
-  # Step 3: Development build (simpler, no license needed if personal)
-  build-dev:
-    name: Development Build (Free)
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          lfs: true
-
-      - name: Cache Unity Library
-        uses: actions/cache@v4
-        with:
-          path: Library
-          key: Library-Dev-${{ env.UNITY_VERSION }}-${{ hashFiles('Assets/**', 'Packages/**') }}
-          restore-keys: |
-            Library-Dev-${{ env.UNITY_VERSION }}-
-
-      - name: Build Development APK
-        uses: game-ci/unity-builder@v4
-        with:
-          unityVersion: ${{ env.UNITY_VERSION }}
-          targetPlatform: Android
-          buildMethod: BuildHelper.CI_BuildDevelopment
-          allowDirtyBuild: false
-          versioning: None
-
-      - name: Upload Dev APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: ToofanAlAqsa-Dev-APK
-          path: build/Android/**/*.apk
-          if-no-files-found: warn
