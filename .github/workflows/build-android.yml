@@ -39,6 +39,10 @@ jobs:
           buildMethod: BuildHelper.CI_Build
           versioning: Semantic
           androidExportType: androidPackage
+          # الأسطر المضافة أدناه لتنظيف بيئة البناء وتمرير الرخصة فقط بشكل إجباري:
+          unityEmail: ""
+          unityPassword: ""
+          unitySerial: ""
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
