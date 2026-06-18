@@ -33,16 +33,15 @@ jobs:
         uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ""
+          UNITY_PASSWORD: ""
+          UNITY_SERIAL: ""
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
           targetPlatform: Android
           buildMethod: BuildHelper.CI_Build
           versioning: Semantic
           androidExportType: androidPackage
-          # الأسطر المضافة أدناه لتنظيف بيئة البناء وتمرير الرخصة فقط بشكل إجباري:
-          unityEmail: ""
-          unityPassword: ""
-          unitySerial: ""
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
