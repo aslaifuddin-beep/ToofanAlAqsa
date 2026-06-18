@@ -7,14 +7,6 @@ on:
   pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch:
-    inputs:
-      build_type:
-        description: 'Build type'
-        type: choice
-        default: 'release'
-        options:
-          - release
-          - development
 
 env:
   UNITY_VERSION: 2022.3.20f1
@@ -40,22 +32,13 @@ jobs:
       - name: Build APK
         uses: game-ci/unity-builder@v4
         env:
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
           targetPlatform: Android
           buildMethod: BuildHelper.CI_Build
-          allowDirtyBuild: false
           versioning: Semantic
           androidExportType: androidPackage
-          androidKeystoreName: ${{ secrets.ANDROID_KEYSTORE_NAME }}
-          androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          androidKeystorePass: ${{ secrets.ANDROID_KEYSTORE_PASS }}
-          androidKeyaliasName: ${{ secrets.ANDROID_KEYALIAS_NAME }}
-          androidKeyaliasPass: ${{ secrets.ANDROID_KEYALIAS_PASS }}
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
@@ -64,7 +47,7 @@ jobs:
           path: |
             build/**/*.apk
             Builds/*.apk
-          if-no-files-found: warn
+          if-no-files-found: error
 
       - name: Upload to Release
         if: startsWith(github.ref, 'refs/tags/v')

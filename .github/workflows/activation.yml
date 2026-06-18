@@ -2,6 +2,19 @@ name: Acquire Unity License
 
 on:
   workflow_dispatch:
+    inputs:
+      unity_email:
+        description: 'Unity Email'
+        required: true
+        type: string
+      unity_password:
+        description: 'Unity Password'
+        required: true
+        type: string
+      unity_serial:
+        description: 'Unity Personal Serial Number'
+        required: true
+        type: string
 
 jobs:
   activation:
@@ -12,9 +25,9 @@ jobs:
         id: activation
         with:
           unityVersion: 2022.3.20f1
-          username: ${{ secrets.UNITY_EMAIL }}
-          password: ${{ secrets.UNITY_PASSWORD }}
-          serial: ${{ secrets.UNITY_SERIAL }}
+          username: ${{ inputs.unity_email }}
+          password: ${{ inputs.unity_password }}
+          serial: ${{ inputs.unity_serial }}
 
       - uses: actions/upload-artifact@v4
         with:
